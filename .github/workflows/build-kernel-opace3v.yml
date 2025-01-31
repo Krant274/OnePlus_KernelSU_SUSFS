@@ -38,10 +38,8 @@ jobs:
       - name: Install Repo
         run: |
           # Install dependencies
-          mkdir -p ./git-repo
-          curl https://storage.googleapis.com/git-repo-downloads/repo > ./git-repo/repo
-          chmod a+rx ./git-repo/repo
-          echo "REPO=$GITHUB_WORKSPACE/./git-repo/repo" >> $GITHUB_ENV
+          sudo apt update
+          sudo apt install repo
 
       - name: Clone AnyKernel3 and Other Dependencies
         run: |
@@ -125,7 +123,7 @@ jobs:
           cd "$CONFIG/kernel_platform/common"
           # Apply additional patch
           cp ../../../kernel_patches/69_hide_stuff.patch ./
-          patch -p1 -F 3 < 69_hide_stuff.patch || true
+          patch -p1 -F 3 < 69_hide_stuff.patch
 
       - name: Add SUSFS Configuration Settings
         run: |
@@ -179,10 +177,6 @@ jobs:
           
           echo "Building the kernel..."
           rm -rf ./kernel_platform/common/android/abi_gki_protected_exports_*
-          #git config --global user.email "bins4us@hotmail.com"
-          #git config --global user.name "TheWildJames"
-          #git add *
-          #git commit -s -a -m "getting rid of -dirty"
           ./kernel_platform/oplus/build/oplus_build_kernel.sh pineapple gki
 
       - name: Create Bootimgs Folder and Copy Images
