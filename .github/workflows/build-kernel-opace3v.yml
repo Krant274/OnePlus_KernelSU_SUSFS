@@ -6,7 +6,7 @@ on:
   
 jobs:
   build-kernel-a14-6-1-kernelsu-susfs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Maximize build space
@@ -38,7 +38,7 @@ jobs:
       - name: Install Repo
         run: |
           # Install dependencies
-          sudo apt update
+          sudo apt update && sudo apt upgrade -y
           sudo apt install repo
 
       - name: Clone AnyKernel3 and Other Dependencies
