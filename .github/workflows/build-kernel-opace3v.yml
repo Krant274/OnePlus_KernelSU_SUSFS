@@ -38,7 +38,7 @@ jobs:
       - name: Install Repo
         run: |
           # Install dependencies
-          sudo apt update && sudo apt upgrade -y
+          sudo apt update
           sudo apt install repo
 
       - name: Clone AnyKernel3 and Other Dependencies
