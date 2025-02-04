@@ -6,7 +6,7 @@ on:
   
 jobs:
   build-kernel-a14-6-1-kernelsu-susfs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-lastest
 
     steps:
       - name: Maximize build space
@@ -39,7 +39,7 @@ jobs:
         run: |
           # Install dependencies
           sudo apt-get update
-          sudo apt-get install repo
+          sudo apt install repo python3 python-is-python3
 
       - name: Clone AnyKernel3 and Other Dependencies
         run: |
@@ -54,9 +54,9 @@ jobs:
           echo "Using branch for SUSFS: $SUSFS_BRANCH"
 
           # Clone repositories using the branch names
-          git clone https://github.com/TheWildJames/AnyKernel3.git -b "$ANYKERNEL_BRANCH"
+          git clone https://github.com/WildPlusKernel/AnyKernel3.git -b "$ANYKERNEL_BRANCH"
           git clone https://gitlab.com/simonpunk/susfs4ksu.git -b "$SUSFS_BRANCH"
-          git clone https://github.com/TheWildJames/kernel_patches.git
+          git clone https://github.com/WildPlusKernel/kernel_patches.git
       
       - name: Initialize and Sync Kernel Source
         run: |
@@ -154,6 +154,10 @@ jobs:
           # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
 
+          sed -i 's/CONFIG_LTO=n/CONFIG_LTO=y/' "./common/arch/arm64/configs/gki_defconfig"
+          sed -i 's/CONFIG_LTO_CLANG_FULL=y/CONFIG_LTO_CLANG_THIN=y/' "./common/arch/arm64/configs/gki_defconfig"
+          sed -i 's/CONFIG_LTO_CLANG_NONE=y/CONFIG_LTO_CLANG_THIN=y/' "./common/arch/arm64/configs/gki_defconfig"
+
       - name: Run sed and perl Commands
         run: |
           echo "Changing to configuration directory: $CONFIG..."
@@ -161,11 +165,13 @@ jobs:
           
           echo "Running sed commands..."
           
-          # Run sed commands for modifications
+           # Run sed commands for modifications
           sed -i 's/check_defconfig//' ./common/build.config.gki
           sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./common/scripts/setlocalversion
+          sed -i '$s|echo "\$res"|echo "\$res-Wild+"|' ./msm-kernel/scripts/setlocalversion
           sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
           sed -i 's/-dirty//' ./common/scripts/setlocalversion
+          sed -i 's/-dirty//' ./msm-kernel/scripts/setlocalversion
 
           # Run perl command to modify UTS_VERSION
           perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
@@ -176,7 +182,8 @@ jobs:
           cd "$CONFIG"
           
           echo "Building the kernel..."
-          rm -rf ./kernel_platform/common/android/abi_gki_protected_exports_*
+          rm ./common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          rm ./msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
           ./kernel_platform/oplus/build/oplus_build_kernel.sh pineapple gki
 
       - name: Create Bootimgs Folder and Copy Images
@@ -185,7 +192,7 @@ jobs:
           cd "$CONFIG"
           
           echo "Copying Image"
-          cp ./out/dist/Image ../AnyKernel3/Image
+          cp ./out/dist/Image ../AnyKernel3/Image || echo "Image not found, nothing to copy."
           
       - name: Create ZIP Files for Different Formats
         run: |
