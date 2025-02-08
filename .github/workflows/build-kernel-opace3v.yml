@@ -104,7 +104,7 @@ jobs:
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || true
 
-          cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./
+          cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./KernelSU-Next
           patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
 
           cd ../common
