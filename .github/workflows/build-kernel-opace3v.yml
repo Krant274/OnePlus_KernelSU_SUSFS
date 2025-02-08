@@ -94,15 +94,19 @@ jobs:
           cp ../../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./common/
           cp ../../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-          cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./KernelSU-Next
           
           cd ./KernelSU-Next
           
           # Apply SUSFS patch for KernelSU
-          #patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
-          patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
+          patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
           
           # Change to common directory and apply SUSFS patch
+          cd ../common
+          patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || true
+
+          cp ../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./
+          patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
+
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || true
           
@@ -113,11 +117,11 @@ jobs:
           
           echo "Applying next SUSFS patches..."
           cp ../../kernel_patches/apk_sign.c_fix.patch ./
-          patch -p1 -F 3 < apk_sign.c_fix.patch
+          #patch -p1 -F 3 < apk_sign.c_fix.patch
           cp ../../kernel_patches/core_hook.c_fix.patch ./
-          patch -p1 --fuzz=3 < core_hook.c_fix.patch
+          #patch -p1 --fuzz=3 < core_hook.c_fix.patch
           cp ../../kernel_patches/selinux.c_fix.patch ./
-          patch -p1 -F 3 < selinux.c_fix.patch
+          #patch -p1 -F 3 < selinux.c_fix.patch
 
       - name: Apply Hide Stuff Patches
         run: |
